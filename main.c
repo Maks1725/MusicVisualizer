@@ -6,8 +6,8 @@
 
 int width = 800;
 int height = 400;
-int halfh = height / 2;
-int quarterh = halfh / 2;
+int halfh;
+int quarterh;
 
 float buff[BUFF_SIZE];
 float buff2[BUFF_SIZE];
@@ -35,13 +35,13 @@ int main() {
     SetAudioStreamBufferSizeDefault(8192);
     
     float volume = 0.5;
-    Music music = LoadMusicStream("/home/maks/Music/Tetrameth.mp3");
+    Music music = LoadMusicStream("/home/maks/Music/Elliot Holmes - Hard Heart.mp3");
     PlayMusicStream(music);
     SetMusicVolume(music, volume);
     AttachAudioStreamProcessor(music.stream, callback);
 
     Color colorBG = {0, 0, 0, 63};
-    Color colorMain = MAROON;
+    Color colorMain = VIOLET;
     Color colorSec = colorMain;
     colorSec.a = 127;
     Color colorLine = colorSec;
