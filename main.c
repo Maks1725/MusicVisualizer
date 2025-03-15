@@ -13,6 +13,9 @@ float buff[BUFF_SIZE];
 float buff2[BUFF_SIZE];
 int ptrCall = 0;
 
+char path[] = "/home/maks/Music/";
+char musicFile[] = "Linkin Park - Numb.mp3";
+
 void callback(void *bufferData, unsigned int frames) {
     float *in = bufferData;
     for (int i = 0; i < frames * 2; i++) {
@@ -36,7 +39,7 @@ int main() {
     
     float volume = 0.5;
     float musicPlayed;
-    Music music = LoadMusicStream("/home/maks/Music/Carpenter Brut - Roller Mobster.mp3");
+    Music music = LoadMusicStream(TextFormat("%s%s", path, musicFile));
     PlayMusicStream(music);
     SetMusicVolume(music, volume);
     AttachAudioStreamProcessor(music.stream, callback);
@@ -45,6 +48,8 @@ int main() {
     Color colorMain = VIOLET;
     Color colorSec = colorMain;
     colorSec.a = 127;
+    Color colorBar = {0, 0, 0, 127};
+    Color colorBarFull = colorSec;
     Color colorLine = colorSec;
     Color colorDot = colorMain;
     int colmod = 0;
@@ -95,6 +100,15 @@ int main() {
             UpdateMusicStream(music);
         }
 
+        // Mouse input
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            if (GetMouseY() >= height - 20) {
+                musicPlayed = GetMusicTimeLength(music) * GetMouseX() / width;
+                SeekMusicStream(music, musicPlayed);
+                UpdateMusicStream(music);
+            }
+        }
+
         // Draw everything
         if (IsWindowResized()) {
             width = GetScreenWidth();
@@ -130,6 +144,13 @@ int main() {
             DrawPixel(i, quarterh + buff[i] * quarterh + 3, colorDot);
             DrawPixel(i, quarterh + buff[i] * quarterh + 5, colorDot);
         }
+
+        if (IsCursorOnScreen()) {
+            DrawRectangle(0, height - 20, (float)width * GetMusicTimePlayed(music) / GetMusicTimeLength(music), 20, colorBarFull);
+            DrawRectangle(0, height - 20, width, 20, colorBar);
+            DrawText(musicFile, 2, height - 15, 12, WHITE);
+        }
+        
         memcpy(buff2, buff, BUFF_SIZE * sizeof(buff[0]));       
         ptrCall = 0;
         EndDrawing();
