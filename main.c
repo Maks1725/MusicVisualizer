@@ -30,12 +30,13 @@ int main() {
     InitWindow(width, height, "Music Visualizer");
     SetWindowMinSize(200, 200);
     SetWindowMaxSize(BUFF_SIZE - 16, 1080);
-    SetTargetFPS(30);
+    SetTargetFPS(20);
     InitAudioDevice();
-    SetAudioStreamBufferSizeDefault(8192);
+    SetAudioStreamBufferSizeDefault(4096);
     
     float volume = 0.5;
-    Music music = LoadMusicStream("/home/maks/Music/Elliot Holmes - Hard Heart.mp3");
+    float musicPlayed;
+    Music music = LoadMusicStream("/home/maks/Music/Carpenter Brut - Roller Mobster.mp3");
     PlayMusicStream(music);
     SetMusicVolume(music, volume);
     AttachAudioStreamProcessor(music.stream, callback);
@@ -51,6 +52,7 @@ int main() {
     while (!WindowShouldClose()) {
         UpdateMusicStream(music);
 
+        // Pausing
         if (IsKeyPressed(KEY_SPACE)) {
             if (IsMusicStreamPlaying(music)) {
                 PauseMusicStream(music);
@@ -59,6 +61,41 @@ int main() {
             }
         }
 
+        // Volume control
+        if (IsKeyPressed(KEY_UP)) {
+            volume += 0.1;
+            if (volume > 1.0) {
+                volume = 1.0;
+            }
+            SetMusicVolume(music, volume);
+        } else if (IsKeyPressed(KEY_DOWN)) {
+            volume -= 0.1;
+            if (volume < 0.0) {
+                volume = 0.0;
+            }
+            SetMusicVolume(music, volume);
+        }
+
+        // Skip and rewind
+        if (IsKeyPressed(KEY_RIGHT)) {
+            musicPlayed = GetMusicTimePlayed(music);
+            musicPlayed += 5.0;
+            if (musicPlayed > GetMusicTimeLength(music)) {
+                musicPlayed = GetMusicTimeLength(music);
+            }
+            SeekMusicStream(music, musicPlayed);
+            UpdateMusicStream(music);
+        } else if (IsKeyPressed(KEY_LEFT)) {
+            musicPlayed = GetMusicTimePlayed(music);
+            musicPlayed -= 5.0;
+            if (musicPlayed < 0.0) {
+                musicPlayed = 0.0;
+            }
+            SeekMusicStream(music, musicPlayed);
+            UpdateMusicStream(music);
+        }
+
+        // Draw everything
         if (IsWindowResized()) {
             width = GetScreenWidth();
             height = GetScreenHeight();
@@ -77,7 +114,7 @@ int main() {
             } else if (i % 2 == 0) {
                 colorLine.a /= 2;
             }
-            DrawLine(i, height - 1, i, height - abs(buff[i] * quarterh * 3) - 1 + buff[i+16] * quarterh, colorLine);
+            DrawLine(i, height, i, height - abs(buff[i] * quarterh * 3) + buff[i+16] * quarterh, colorLine);
 
             colorDot.r /= 2;
             colorDot.g /= 2;
