@@ -24,7 +24,7 @@ void callback(void *bufferData, unsigned int frames) {
         if (ptrCall >= BUFF_SIZE) {
             break;
         }
-        buff[ptrCall] = in[i] / volume;
+        buff[ptrCall] = in[i];
         ptrCall++;
     }
 }
@@ -38,7 +38,6 @@ int main() {
     SetTargetFPS(20);
     InitAudioDevice();
     SetAudioStreamBufferSizeDefault(4096);
-    AttachAudioMixedProcessor(callback);
     
     int barHeight = 24;
     //Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
@@ -60,6 +59,9 @@ int main() {
 
         // Check for dropped files
         if (IsFileDropped()) {
+            if (IsMusicValid(music)) {
+                DetachAudioStreamProcessor(music.stream, callback);
+            }
             FilePathList files = LoadDroppedFiles();
             TextCopy(musicFile, files.paths[0]);
             printf("Loading music: %s\n", GetFileNameWithoutExt(musicFile));
@@ -68,6 +70,7 @@ int main() {
                 PlayMusicStream(music);
                 channels = music.stream.channels;
                 SetMusicVolume(music, volume);
+                AttachAudioStreamProcessor(music.stream, callback);
             }
             UnloadDroppedFiles(files);
         }
