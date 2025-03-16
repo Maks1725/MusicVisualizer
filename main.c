@@ -96,7 +96,7 @@ int main() {
             colorDot.r /= 2;
             colorDot.g /= 2;
             colorDot.b /= 2;
-            //DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot);
