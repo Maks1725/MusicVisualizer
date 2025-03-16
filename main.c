@@ -11,6 +11,7 @@ int halfh;
 int quarterh;
 
 int channels = 1;
+float volume = 0.5;
 float buff[BUFF_SIZE];
 float buff2[BUFF_SIZE];
 int ptrCall = 0;
@@ -23,7 +24,7 @@ void callback(void *bufferData, unsigned int frames) {
         if (ptrCall >= BUFF_SIZE) {
             break;
         }
-        buff[ptrCall] = in[i];
+        buff[ptrCall] = in[i] / volume;
         ptrCall++;
     }
 }
@@ -42,7 +43,6 @@ int main() {
     int barHeight = 24;
     //Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
     
-    float volume = 0.5;
     float musicPlayed;
     Music music;
 
@@ -96,7 +96,7 @@ int main() {
             colorDot.r /= 2;
             colorDot.g /= 2;
             colorDot.b /= 2;
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
+            //DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot);
