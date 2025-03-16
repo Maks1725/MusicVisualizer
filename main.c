@@ -1,7 +1,7 @@
-#include <raylib.h>
+#include "raylib.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #define BUFF_SIZE 2048
 
@@ -29,7 +29,7 @@ void callback(void *bufferData, unsigned int frames) {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT);
     InitWindow(width, height, "Music Visualizer");
@@ -38,15 +38,18 @@ int main() {
     SetTargetFPS(20);
     InitAudioDevice();
     SetAudioStreamBufferSizeDefault(4096);
-    
+
     int barHeight = 24;
-    //Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
-    
+    // Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
+
     float musicPlayed;
     Music music;
 
-    Color colorBG = {0, 0, 0, 63};
     Color colorMain = VIOLET;
+    if (argc > 4) {
+        colorMain = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4])};
+    }
+    Color colorBG = {0, 0, 0, 63};
     Color colorSec = colorMain;
     colorSec.a = 127;
     Color colorBar = {0, 0, 0, 127};
@@ -84,7 +87,7 @@ int main() {
         }
 
         BeginDrawing();
-        
+
         ClearBackground(colorBG);
 
         for (int i = 0; i < width; i++) {
@@ -94,7 +97,10 @@ int main() {
             } else if (i % 2 == 0) {
                 colorLine.a /= 2;
             }
-            DrawLine(i, height, i, height - abs(buff[i] * quarterh * 3) + buff[i+16] * quarterh, colorLine);
+            DrawLine(i, height, i,
+                     height - abs(buff[i] * quarterh * 3) +
+                         buff[i + 16] * quarterh,
+                     colorLine);
 
             colorDot.r /= 2;
             colorDot.g /= 2;
@@ -116,15 +122,20 @@ int main() {
 
         if (IsCursorOnScreen()) {
             if (IsMusicValid(music)) {
-                DrawRectangle(0, height - barHeight, (float)width * GetMusicTimePlayed(music) / GetMusicTimeLength(music), barHeight, colorBarFull);
+                DrawRectangle(0, height - barHeight,
+                              (float)width * GetMusicTimePlayed(music) /
+                                  GetMusicTimeLength(music),
+                              barHeight, colorBarFull);
             }
             DrawRectangle(0, height - barHeight, width, barHeight, colorBar);
-            //DrawTextEx(font, GetFileNameWithoutExt(musicFile), (Vector2){2, height - barHeight + 2}, 20, 0, WHITE);
-            DrawText(GetFileNameWithoutExt(musicFile), 2, height - barHeight + 2, 20, WHITE);
+            // DrawTextEx(font, GetFileNameWithoutExt(musicFile), (Vector2){2,
+            // height - barHeight + 2}, 20, 0, WHITE);
+            DrawText(GetFileNameWithoutExt(musicFile), 2,
+                     height - barHeight + 2, 20, WHITE);
         }
 
         EndDrawing();
-        
+
         if (!IsMusicValid(music)) {
             continue;
         }
