@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define BUFF_SIZE 2048
 
@@ -9,16 +10,16 @@ int height = 400;
 int halfh;
 int quarterh;
 
+int channels = 1;
 float buff[BUFF_SIZE];
 float buff2[BUFF_SIZE];
 int ptrCall = 0;
 
-char path[] = "/home/maks/Music/";
-char musicFile[] = "Linkin Park - Numb.mp3";
+char musicFile[2048] = "Drag&Drop Music Here";
 
 void callback(void *bufferData, unsigned int frames) {
     float *in = bufferData;
-    for (int i = 0; i < frames * 2; i++) {
+    for (int i = 0; i < frames * channels; i++) {
         if (ptrCall >= BUFF_SIZE) {
             break;
         }
@@ -36,13 +37,14 @@ int main() {
     SetTargetFPS(20);
     InitAudioDevice();
     SetAudioStreamBufferSizeDefault(4096);
+    AttachAudioMixedProcessor(callback);
+    
+    int barHeight = 24;
+    //Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
     
     float volume = 0.5;
     float musicPlayed;
-    Music music = LoadMusicStream(TextFormat("%s%s", path, musicFile));
-    PlayMusicStream(music);
-    SetMusicVolume(music, volume);
-    AttachAudioStreamProcessor(music.stream, callback);
+    Music music;
 
     Color colorBG = {0, 0, 0, 63};
     Color colorMain = VIOLET;
@@ -55,6 +57,75 @@ int main() {
     int colmod = 0;
 
     while (!WindowShouldClose()) {
+
+        // Check for dropped files
+        if (IsFileDropped()) {
+            FilePathList files = LoadDroppedFiles();
+            TextCopy(musicFile, files.paths[0]);
+            printf("Loading music: %s\n", GetFileNameWithoutExt(musicFile));
+            music = LoadMusicStream(musicFile);
+            if (IsMusicValid(music)) {
+                PlayMusicStream(music);
+                channels = music.stream.channels;
+                SetMusicVolume(music, volume);
+            }
+            UnloadDroppedFiles(files);
+        }
+
+        // Draw everything
+        if (IsWindowResized()) {
+            width = GetScreenWidth();
+            height = GetScreenHeight();
+            halfh = height / 2;
+            quarterh = halfh / 2;
+        }
+
+        BeginDrawing();
+        
+        ClearBackground(colorBG);
+
+        for (int i = 0; i < width; i++) {
+            colorLine.a = colorSec.a;
+            if (i % 16 < 2) {
+                colorLine.a = 0;
+            } else if (i % 2 == 0) {
+                colorLine.a /= 2;
+            }
+            DrawLine(i, height, i, height - abs(buff[i] * quarterh * 3) + buff[i+16] * quarterh, colorLine);
+
+            colorDot.r /= 2;
+            colorDot.g /= 2;
+            colorDot.b /= 2;
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot);
+
+            colorDot = colorMain;
+            DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 1, colorDot);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 3, colorDot);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 5, colorDot);
+        }
+
+        memcpy(buff2, buff, BUFF_SIZE * sizeof(buff[0]));
+        ptrCall = 0;
+
+        if (IsCursorOnScreen()) {
+            if (IsMusicValid(music)) {
+                DrawRectangle(0, height - barHeight, (float)width * GetMusicTimePlayed(music) / GetMusicTimeLength(music), barHeight, colorBarFull);
+            }
+            DrawRectangle(0, height - barHeight, width, barHeight, colorBar);
+            //DrawTextEx(font, GetFileNameWithoutExt(musicFile), (Vector2){2, height - barHeight + 2}, 20, 0, WHITE);
+            DrawText(GetFileNameWithoutExt(musicFile), 2, height - barHeight + 2, 20, WHITE);
+        }
+
+        EndDrawing();
+        
+        if (!IsMusicValid(music)) {
+            continue;
+        }
+
         UpdateMusicStream(music);
 
         // Pausing
@@ -102,57 +173,11 @@ int main() {
 
         // Mouse input
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (GetMouseY() >= height - 20) {
+            if (GetMouseY() >= height - barHeight) {
                 musicPlayed = GetMusicTimeLength(music) * GetMouseX() / width;
                 SeekMusicStream(music, musicPlayed);
                 UpdateMusicStream(music);
             }
         }
-
-        // Draw everything
-        if (IsWindowResized()) {
-            width = GetScreenWidth();
-            height = GetScreenHeight();
-            halfh = height / 2;
-            quarterh = halfh / 2;
-        }
-
-        BeginDrawing();
-        
-        ClearBackground(colorBG);
-
-        for (int i = 0; i < width; i++) {
-            colorLine.a = colorSec.a;
-            if (i % 16 < 2) {
-                colorLine.a = 0;
-            } else if (i % 2 == 0) {
-                colorLine.a /= 2;
-            }
-            DrawLine(i, height, i, height - abs(buff[i] * quarterh * 3) + buff[i+16] * quarterh, colorLine);
-
-            colorDot.r /= 2;
-            colorDot.g /= 2;
-            colorDot.b /= 2;
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot);
-
-            colorDot = colorMain;
-            DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 1, colorDot);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 3, colorDot);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 5, colorDot);
-        }
-
-        if (IsCursorOnScreen()) {
-            DrawRectangle(0, height - 20, (float)width * GetMusicTimePlayed(music) / GetMusicTimeLength(music), 20, colorBarFull);
-            DrawRectangle(0, height - 20, width, 20, colorBar);
-            DrawText(musicFile, 2, height - 15, 12, WHITE);
-        }
-        
-        memcpy(buff2, buff, BUFF_SIZE * sizeof(buff[0]));       
-        ptrCall = 0;
-        EndDrawing();
     }
 }
