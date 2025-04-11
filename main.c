@@ -33,6 +33,8 @@ int main(int argc, char *argv[]) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT);
     InitWindow(width, height, "Music Visualizer");
+    halfh = height / 2;
+    quarterh = halfh / 2;
     SetWindowMinSize(200, 200);
     SetWindowMaxSize(BUFF_SIZE - 16, 1080);
     SetTargetFPS(20);
@@ -40,7 +42,7 @@ int main(int argc, char *argv[]) {
     SetAudioStreamBufferSizeDefault(4096);
 
     int barHeight = 24;
-    // Font font = GetFontDefault(); //LoadFont("JetBrainsMono-Regular.ttf");
+    Font font = LoadFontEx("Iosevka-Regular.ttf", 20, NULL, 1280);
 
     float musicPlayed;
     Music music;
@@ -56,6 +58,10 @@ int main(int argc, char *argv[]) {
     Color colorBarFull = colorSec;
     Color colorLine = colorSec;
     Color colorDot = colorMain;
+    Color colorDot2 = colorDot;
+    colorDot2.r /= 2;
+    colorDot2.g /= 2;
+    colorDot2.b /= 2;
     int colmod = 0;
 
     while (!WindowShouldClose()) {
@@ -102,15 +108,11 @@ int main(int argc, char *argv[]) {
                          buff[i + 16] * quarterh,
                      colorLine);
 
-            colorDot.r /= 2;
-            colorDot.g /= 2;
-            colorDot.b /= 2;
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot2);
 
-            colorDot = colorMain;
             DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
             DrawPixel(i, quarterh + buff[i] * quarterh + 1, colorDot);
             DrawPixel(i, quarterh + buff[i] * quarterh + 3, colorDot);
@@ -128,10 +130,11 @@ int main(int argc, char *argv[]) {
                               barHeight, colorBarFull);
             }
             DrawRectangle(0, height - barHeight, width, barHeight, colorBar);
-            // DrawTextEx(font, GetFileNameWithoutExt(musicFile), (Vector2){2,
-            // height - barHeight + 2}, 20, 0, WHITE);
-            DrawText(GetFileNameWithoutExt(musicFile), 2,
-                     height - barHeight + 2, 20, WHITE);
+            DrawTextEx(font, GetFileNameWithoutExt(musicFile),
+                        (Vector2){2, height - barHeight + 2}, font.baseSize,
+                        0, WHITE);
+            //DrawText(GetFileNameWithoutExt(musicFile), 2,
+            //         height - barHeight + 2, 20, WHITE);
         }
 
         EndDrawing();
