@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define BUFF_SIZE 2048
 
@@ -14,6 +15,7 @@ int channels = 1;
 float volume = 0.5;
 float buff[BUFF_SIZE];
 float buff2[BUFF_SIZE];
+float buff3[BUFF_SIZE];
 int ptrCall = 0;
 
 char musicFile[2048] = "Drag&Drop Music Here";
@@ -59,9 +61,13 @@ int main(int argc, char *argv[]) {
     Color colorLine = colorSec;
     Color colorDot = colorMain;
     Color colorDot2 = colorDot;
+    Color colorDot3 = colorDot;
     colorDot2.r /= 2;
     colorDot2.g /= 2;
     colorDot2.b /= 2;
+    colorDot3.r /= 3;
+    colorDot3.g /= 3;
+    colorDot3.b /= 3;
     int colmod = 0;
 
     while (!WindowShouldClose()) {
@@ -104,9 +110,13 @@ int main(int argc, char *argv[]) {
                 colorLine.a /= 2;
             }
             DrawLine(i, height, i,
-                     height - abs(buff[i] * quarterh * 3) +
-                         buff[i + 16] * quarterh,
-                     colorLine);
+                     height - pow(fabs(buff[i]), 2.0f) * quarterh * 3,
+                     colorLine); // what the fuck does this do i don't remember
+
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 10, GRAY);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 1, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 3, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 5, colorDot3);
 
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
             DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot2);
@@ -119,6 +129,7 @@ int main(int argc, char *argv[]) {
             DrawPixel(i, quarterh + buff[i] * quarterh + 5, colorDot);
         }
 
+        memcpy(buff3, buff2, BUFF_SIZE * sizeof(buff[0]));
         memcpy(buff2, buff, BUFF_SIZE * sizeof(buff[0]));
         ptrCall = 0;
 
