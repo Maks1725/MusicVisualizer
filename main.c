@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
     Music music;
 
     Color colorMain = VIOLET;
-    if (argc > 4) {
-        colorMain = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4])};
+    if (argc > 3) {
+        colorMain = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), 255};
     }
     Color colorBG = {0, 0, 0, 63};
     Color colorSec = colorMain;
@@ -62,12 +62,8 @@ int main(int argc, char *argv[]) {
     Color colorDot = colorMain;
     Color colorDot2 = colorDot;
     Color colorDot3 = colorDot;
-    colorDot2.r /= 2;
-    colorDot2.g /= 2;
-    colorDot2.b /= 2;
-    colorDot3.r /= 3;
-    colorDot3.g /= 3;
-    colorDot3.b /= 3;
+    colorDot2.a /= 2;
+    colorDot3.a /= 3;
     int colmod = 0;
 
     while (!WindowShouldClose()) {
@@ -113,15 +109,13 @@ int main(int argc, char *argv[]) {
                      height - pow(fabs(buff[i]), 2.0f) * quarterh * 3,
                      colorLine); // what the fuck does this do i don't remember
 
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 10, GRAY);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 1, colorDot3);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 3, colorDot3);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 10 + 5, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 1, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 3, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 5, colorDot3);
 
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5, GRAY);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 1, colorDot2);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 3, colorDot2);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 5 + 5, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 1, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 3, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 5, colorDot2);
 
             DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
             DrawPixel(i, quarterh + buff[i] * quarterh + 1, colorDot);
