@@ -49,22 +49,18 @@ int main(int argc, char *argv[]) {
     float musicPlayed;
     Music music;
 
-    Color colorMain = VIOLET;
+    Color color0 = VIOLET;
     if (argc > 3) {
-        colorMain = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), 255};
+        color0 = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), 255};
     }
-    Color colorBG = {0, 0, 0, 63};
-    Color colorSec = colorMain;
-    colorSec.a = 127;
+    Color color1 = color0;
+    Color color2 = color0;
+    color1.a /= 2;
+    color2.a /= 3;
+    Color colorBG = {0, 0, 0, 127};
     Color colorBar = {0, 0, 0, 127};
-    Color colorBarFull = colorSec;
-    Color colorLine = colorSec;
-    Color colorDot = colorMain;
-    Color colorDot2 = colorDot;
-    Color colorDot3 = colorDot;
-    colorDot2.a /= 2;
-    colorDot3.a /= 3;
-    int colmod = 0;
+    Color colorBarFull = color2;
+    Color colorLine = color1;
 
     while (!WindowShouldClose()) {
 
@@ -99,7 +95,7 @@ int main(int argc, char *argv[]) {
         ClearBackground(colorBG);
 
         for (int i = 0; i < width; i++) {
-            colorLine.a = colorSec.a;
+            colorLine.a = color1.a;
             if (i % 16 < 2) {
                 colorLine.a = 0;
             } else if (i % 2 == 0) {
@@ -109,18 +105,18 @@ int main(int argc, char *argv[]) {
                      height - pow(fabs(buff[i]), 2.0f) * quarterh * 3,
                      colorLine); // what the fuck does this do i don't remember
 
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 1, colorDot3);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 3, colorDot3);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 5, colorDot3);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 1, color2);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 3, color2);
+            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 5, color2);
 
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 1, colorDot2);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 3, colorDot2);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 5, colorDot2);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 1, color1);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 3, color1);
+            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 5, color1);
 
             DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 1, colorDot);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 3, colorDot);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 5, colorDot);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 1, color0);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 3, color0);
+            DrawPixel(i, quarterh + buff[i] * quarterh + 5, color0);
         }
 
         memcpy(buff3, buff2, BUFF_SIZE * sizeof(buff[0]));
