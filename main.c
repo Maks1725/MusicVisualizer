@@ -54,9 +54,7 @@ int main(int argc, char *argv[]) {
         color0 = (Color){atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), 255};
     }
     Color color1 = color0;
-    Color color2 = color0;
     color1.a /= 2;
-    color2.a /= 4;
     Color colorBG = {0, 0, 0, 127};
     Color colorBar = {0, 0, 0, 127};
     Color colorBarFull = color1;
