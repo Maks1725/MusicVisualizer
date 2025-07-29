@@ -4,18 +4,18 @@
 #include <string.h>
 #include <math.h>
 
-#define BUFF_SIZE 2048
+#define BUFF_SIZE 1920
 
 int width = 800;
 int height = 400;
 int halfh;
 int quarterh;
 
+int frame = 0;
+
 int channels = 1;
 float volume = 0.5;
-float buff[BUFF_SIZE];
-float buff2[BUFF_SIZE];
-float buff3[BUFF_SIZE];
+float buff[12][BUFF_SIZE];
 int ptrCall = 0;
 
 char musicFile[2048] = "Drag&Drop Music Here";
@@ -26,7 +26,7 @@ void callback(void *bufferData, unsigned int frames) {
         if (ptrCall >= BUFF_SIZE) {
             break;
         }
-        buff[ptrCall] = in[i];
+        buff[0][ptrCall] = in[i];
         ptrCall++;
     }
 }
@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
     halfh = height / 2;
     quarterh = halfh / 2;
     SetWindowMinSize(200, 200);
-    SetWindowMaxSize(BUFF_SIZE - 16, 1080);
-    SetTargetFPS(20);
+    SetWindowMaxSize(BUFF_SIZE, 1080);
+    SetTargetFPS(60);
     InitAudioDevice();
     SetAudioStreamBufferSizeDefault(4096);
 
@@ -56,10 +56,10 @@ int main(int argc, char *argv[]) {
     Color color1 = color0;
     Color color2 = color0;
     color1.a /= 2;
-    color2.a /= 3;
+    color2.a /= 4;
     Color colorBG = {0, 0, 0, 127};
     Color colorBar = {0, 0, 0, 127};
-    Color colorBarFull = color2;
+    Color colorBarFull = color1;
     Color colorLine = color1;
 
     while (!WindowShouldClose()) {
@@ -102,26 +102,25 @@ int main(int argc, char *argv[]) {
                 colorLine.a /= 2;
             }
             DrawLine(i, height, i,
-                     height - pow(fabs(buff[i]), 2.0f) * quarterh * 3,
+                     height - fabs(buff[1][i]) * quarterh * 3,
                      colorLine); // what the fuck does this do i don't remember
 
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 1, color2);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 3, color2);
-            DrawPixel(i, quarterh + buff3[i] * quarterh + 12 + 5, color2);
-
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 1, color1);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 3, color1);
-            DrawPixel(i, quarterh + buff2[i] * quarterh + 6 + 5, color1);
-
-            DrawPixel(i, quarterh + buff[i] * quarterh, WHITE);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 1, color0);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 3, color0);
-            DrawPixel(i, quarterh + buff[i] * quarterh + 5, color0);
+            for (int j = 11; j > 1; --j) {
+                DrawPixel(i, quarterh + buff[j][i] * quarterh + j * 2 - 2,
+                          (Color){color0.r, color0.g, color0.b, color0.a * (12 - j) / 12});
+            }
+            DrawPixel(i, quarterh + buff[1][i] * quarterh, WHITE);
         }
 
-        memcpy(buff3, buff2, BUFF_SIZE * sizeof(buff[0]));
-        memcpy(buff2, buff, BUFF_SIZE * sizeof(buff[0]));
-        ptrCall = 0;
+        for (int i = 11; i > 0; --i) {
+            memcpy(buff[i], buff[i - 1], sizeof(buff[0]));
+        }
+
+        frame++;
+        if (frame == 3) {
+            frame = 0;
+            ptrCall = 0;
+        }
 
         if (IsCursorOnScreen()) {
             if (IsMusicValid(music)) {
